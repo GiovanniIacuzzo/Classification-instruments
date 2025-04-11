@@ -4,21 +4,24 @@ import torchaudio
 from torch.utils.data import Dataset, DataLoader
 from pathlib import Path
 
+# Lista delle etichette (strumenti)
 LABELS = ["chitarra", "flauto", "pianoforte", "viola", "violino"]
 LABEL2IDX = {label: idx for idx, label in enumerate(LABELS)}
 
-class Dataset(Dataset):
-    def __init__(self, root_dir, max_len=160000):
+class AudioDataset(Dataset):
+    def __init__(self, root_dir, split='train', max_len=160000):
         self.samples = []
         self.root_dir = Path(root_dir)
+        self.split = split
         self.max_len = max_len
 
         for label in LABELS:
             label_dir = self.root_dir / label / "audio"
-            if not label_dir.exists():
-                continue
-            for file in label_dir.glob("*.wav"):
+            
+            audio_files = list(label_dir.glob("*.wav"))
+            for file in audio_files:
                 self.samples.append((file, LABEL2IDX[label]))
+
 
     def __len__(self):
         return len(self.samples)
@@ -34,7 +37,6 @@ class Dataset(Dataset):
             resample = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=target_sr)
             waveform = resample(waveform)
 
-        # Padding o taglio
         length = waveform.shape[1]
         if length > self.max_len:
             waveform = waveform[:, :self.max_len]
@@ -43,10 +45,11 @@ class Dataset(Dataset):
             waveform = torch.nn.functional.pad(waveform, (0, pad))
         
         return waveform
-def get_dataloaders(base_path, batch_size=16, num_workers=2, max_len=160000):
-    train_set = Dataset(os.path.join(base_path, "train"), max_len=max_len)
-    val_set = Dataset(os.path.join(base_path, "val"), max_len=max_len)
-    test_set = Dataset(os.path.join(base_path, "test"), max_len=max_len)
+
+def get_dataloaders(base_path, batch_size=32, num_workers=4, max_len=160000):
+    train_set = AudioDataset(base_path, split='train', max_len=max_len)
+    val_set = AudioDataset(base_path, split='val', max_len=max_len)
+    test_set = AudioDataset(base_path, split='test', max_len=max_len)
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=num_workers)
