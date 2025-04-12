@@ -1,44 +1,63 @@
+import os
+import random
 import torch
 import torchaudio
 from torch.utils.data import Dataset
-from pathlib import Path
-
-LABELS = ["chitarra", "flauto", "pianoforte", "viola", "violino"]
-LABEL2IDX = {label: idx for idx, label in enumerate(LABELS)}
 
 class AudioDataset(Dataset):
-    def __init__(self, root_dir, split='train', max_len=160000, target_sr=16000):
-        self.samples = []
-        self.max_len = max_len
-        self.target_sr = target_sr
-        self.root_dir = Path(root_dir) / split
+    def __init__(self, data_dir, split="train", sample_rate=16000, duration=3, transform=None, shuffle=False):
+        self.data_dir = os.path.join(data_dir, split)
+        self.sample_rate = sample_rate
+        self.num_samples = sample_rate * duration
+        self.transform = transform
 
-        for label in LABELS:
-            audio_dir = self.root_dir / label / "audio"
-            for file_path in audio_dir.glob("*.wav"):
-                self.samples.append((file_path, LABEL2IDX[label]))
+        if not os.path.exists(self.data_dir):
+            raise FileNotFoundError(f"La cartella {self.data_dir} non esiste.")
+
+        self.classes = sorted(os.listdir(self.data_dir))
+        if not self.classes:
+            raise FileNotFoundError(f"Nessuna classe trovata nella cartella {self.data_dir}")
+
+        self.audio_paths = []
+        self.labels = []
+
+        for label, class_name in enumerate(self.classes):
+            class_dir = os.path.join(self.data_dir, class_name, 'audio')
+            if os.path.isdir(class_dir):
+                for filename in os.listdir(class_dir):
+                    if filename.lower().endswith('.wav'):
+                        path = os.path.join(class_dir, filename)
+                        self.audio_paths.append(path)
+                        self.labels.append(label)
+
+        if shuffle:
+            combined = list(zip(self.audio_paths, self.labels))
+            random.shuffle(combined)
+            self.audio_paths[:], self.labels[:] = zip(*combined)
 
     def __len__(self):
-        return len(self.samples)
+        return len(self.audio_paths)
 
     def __getitem__(self, idx):
-        file_path, label = self.samples[idx]
-        waveform, sample_rate = torchaudio.load(file_path)
+        audio_path = self.audio_paths[idx]
+        label = self.labels[idx]
 
-        # Converti a mono se necessario
-        if waveform.shape[0] > 1:
-            waveform = torch.mean(waveform, dim=0, keepdim=True)  # (1, T)
+        waveform, sr = torchaudio.load(audio_path)
+        waveform = waveform.mean(dim=0)
 
-        # Resampling
-        if sample_rate != self.target_sr:
-            resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=self.target_sr)
+        # Resample se necessario
+        if sr != self.sample_rate:
+            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=self.sample_rate)
             waveform = resampler(waveform)
 
-        # Padding o truncating
-        if waveform.shape[1] > self.max_len:
-            waveform = waveform[:, :self.max_len]
+        # Pad o truncate
+        if waveform.size(0) < self.num_samples:
+            padding = self.num_samples - waveform.size(0)
+            waveform = torch.nn.functional.pad(waveform, (0, padding))
         else:
-            pad_length = self.max_len - waveform.shape[1]
-            waveform = torch.nn.functional.pad(waveform, (0, pad_length))
+            waveform = waveform[:self.num_samples]
 
-        return waveform, label
+        if self.transform:
+            waveform = self.transform(waveform)
+
+        return waveform.unsqueeze(0), label 
