@@ -1,58 +1,44 @@
-import os
 import torch
 import torchaudio
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from pathlib import Path
 
-# Lista delle etichette (strumenti)
 LABELS = ["chitarra", "flauto", "pianoforte", "viola", "violino"]
 LABEL2IDX = {label: idx for idx, label in enumerate(LABELS)}
 
 class AudioDataset(Dataset):
-    def __init__(self, root_dir, split='train', max_len=160000):
+    def __init__(self, root_dir, split='train', max_len=160000, target_sr=16000):
         self.samples = []
-        self.root_dir = Path(root_dir)
-        self.split = split
         self.max_len = max_len
+        self.target_sr = target_sr
+        self.root_dir = Path(root_dir) / split
 
         for label in LABELS:
-            label_dir = self.root_dir / label / "audio"
-            
-            audio_files = list(label_dir.glob("*.wav"))
-            for file in audio_files:
-                self.samples.append((file, LABEL2IDX[label]))
-
+            audio_dir = self.root_dir / label / "audio"
+            for file_path in audio_dir.glob("*.wav"):
+                self.samples.append((file_path, LABEL2IDX[label]))
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        audio_path, label = self.samples[idx]
-        waveform, sample_rate = torchaudio.load(audio_path)
-        waveform = self._preprocess(waveform, sample_rate)
-        return waveform, label
+        file_path, label = self.samples[idx]
+        waveform, sample_rate = torchaudio.load(file_path)
 
-    def _preprocess(self, waveform, sample_rate, target_sr=16000):
-        if sample_rate != target_sr:
-            resample = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=target_sr)
-            waveform = resample(waveform)
+        # Converti a mono se necessario
+        if waveform.shape[0] > 1:
+            waveform = torch.mean(waveform, dim=0, keepdim=True)  # (1, T)
 
-        length = waveform.shape[1]
-        if length > self.max_len:
+        # Resampling
+        if sample_rate != self.target_sr:
+            resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=self.target_sr)
+            waveform = resampler(waveform)
+
+        # Padding o truncating
+        if waveform.shape[1] > self.max_len:
             waveform = waveform[:, :self.max_len]
-        elif length < self.max_len:
-            pad = self.max_len - length
-            waveform = torch.nn.functional.pad(waveform, (0, pad))
-        
-        return waveform
+        else:
+            pad_length = self.max_len - waveform.shape[1]
+            waveform = torch.nn.functional.pad(waveform, (0, pad_length))
 
-def get_dataloaders(base_path, batch_size=32, num_workers=4, max_len=160000):
-    train_set = AudioDataset(base_path, split='train', max_len=max_len)
-    val_set = AudioDataset(base_path, split='val', max_len=max_len)
-    test_set = AudioDataset(base_path, split='test', max_len=max_len)
-
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-
-    return train_loader, val_loader, test_loader
+        return waveform, label
