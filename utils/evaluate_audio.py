@@ -1,6 +1,6 @@
 import torch
-from utils.dataset import Dataset
-from models.model import RNN
+from utils.dataset_audio import Dataset
+from models.model_audio import RNN
 from torch.utils.data import DataLoader
 from sklearn.metrics import classification_report
 

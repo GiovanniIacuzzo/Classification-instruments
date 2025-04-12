@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from utils.get_data import get_dataloaders
-from models.model import RNN
+from utils.get_data_audio import get_dataloaders
+from models.model_audio import RNN
 
 def train_model(data_dir, epochs=10, batch_size=16, lr=0.001):
     train_loader, val_loader, _ = get_dataloaders(data_dir, batch_size=batch_size)
