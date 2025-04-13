@@ -1,18 +1,20 @@
-name: cnn-training
+name: cnn-rnn-training
 channels:
   - defaults
   - conda-forge
 dependencies:
   - python=3.9
-  - pytorch
-  - torchvision
-  - torchaudio
+  - pytorch=2.1.0
+  - torchvision=0.16.0
+  - torchaudio=2.1.0
   - cpuonly
-  - pandas
   - matplotlib
+  - pandas
   - seaborn
   - scikit-learn
   - tqdm
+  - pillow
   - pip
   - pip:
-      - notebook
+      - librosa
+      - soundfile
