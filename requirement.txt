@@ -1,0 +1,14 @@
+python=3.9
+pytorch=2.1.0
+torchvision=0.16.0
+torchaudio=2.1.0
+cpuonly
+matplotlib
+pandas
+seaborn
+scikit-learn
+tqdm
+pillow
+pip
+librosa
+soundfile
