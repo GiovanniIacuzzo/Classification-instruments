@@ -21,7 +21,6 @@ class RNN(nn.Module):
         self.fc = nn.Linear(hidden_size * self.num_directions, num_classes)
 
     def forward(self, x):
-        x = x.transpose(1, 2)
         out, _ = self.lstm(x)
         out = out[:, -1, :]
         out = self.fc(out)

@@ -77,6 +77,8 @@ def collate_fn(batch):
         pad_len = max_len - waveform.shape[1]
         if pad_len > 0:
             waveform = torch.nn.functional.pad(waveform, (0, pad_len))
+        waveform = waveform.squeeze(0).unsqueeze(-1)
         padded_waveforms.append(waveform)
 
     return torch.stack(padded_waveforms), torch.tensor(labels)
+
