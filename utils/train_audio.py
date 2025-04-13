@@ -27,7 +27,6 @@ def train_model(model, train_loader, val_loader, num_epochs=20, lr=1e-3, device=
 
             optimizer.zero_grad()
             outputs = model(inputs)
-
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
