@@ -1,52 +1,54 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from utils.get_data_audio import get_dataloaders
-from models.model_audio import RNN
+from tqdm import tqdm
+from utils.evaluate_audio import evaluate
 
-def train_model(data_dir, epochs=10, batch_size=16, lr=0.001):
-    train_loader, val_loader, _ = get_dataloaders(data_dir, batch_size=batch_size)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = RNN(num_classes=5).to(device)
+def train_model(model, train_loader, val_loader, num_epochs=20, lr=1e-3, device=None, save_path="best_model.pth"):
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    
-    for epoch in range(epochs):
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+
+    best_val_acc = 0.0
+
+    for epoch in range(num_epochs):
+        print(f"\nEpoch {epoch + 1}/{num_epochs}")
         model.train()
-        total_loss = 0
-        for i, (x, y) in enumerate(train_loader):
-            print(f"Epoch {epoch+1}/{epochs}, Batch {i+1}/{len(train_loader)}")
-            
-            # Trasferisci i dati sul dispositivo
-            x, y = x.to(device), y.to(device)
+        running_loss = 0.0
+        correct = 0
+        total = 0
 
-            # Verifica la forma di x e y prima del passaggio alla GRU
-            print(f"x.shape: {x.shape}, y.shape: {y.shape}")
+        for batch in tqdm(train_loader, desc="Training", leave=False):
+            inputs, labels = batch
+            inputs, labels = inputs.to(device), labels.to(device)
 
-            # Assicurati che x abbia la forma corretta: (B, L, F)
-            # Se x è di forma (B, L), aggiungiamo una dimensione per le feature
-            if x.dim() == 2:
-                x = x.unsqueeze(-1)  # (B, L) -> (B, L, 1)
-
-            # Controlla di nuovo la forma di x
-            print(f"After unsqueeze, x.shape: {x.shape}")
-
-            # Forward pass
             optimizer.zero_grad()
-            outputs = model(x)
+            outputs = model(inputs)
 
-            # Debugging: controlla la forma dell'output
-            print(f"outputs.shape: {outputs.shape}")
-            
-            # Calcola la loss
-            loss = criterion(outputs, y)
+            loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-            total_loss += loss.item()
 
-        avg_loss = total_loss / len(train_loader)
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}")
+            running_loss += loss.item()
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
 
-    torch.save(model.state_dict(), "model.pth")
-    print("Modello salvato come model.pth")
+        train_loss = running_loss / len(train_loader)
+        train_acc = correct / total
+
+        val_loss, val_acc = evaluate(model, val_loader, criterion, device)
+
+        print(f"Train Loss: {train_loss:.4f}, Acc: {train_acc:.4f} | Val Loss: {val_loss:.4f}, Acc: {val_acc:.4f}")
+
+        if val_acc > best_val_acc:
+            best_val_acc = val_acc
+            torch.save(model.state_dict(), save_path)
+            print("Modello salvato (nuovo best)")
+
+        scheduler.step()
+
+    print(f"\nFine training. Miglior acc. validazione: {best_val_acc:.4f}")

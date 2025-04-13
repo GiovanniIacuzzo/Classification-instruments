@@ -1,63 +1,82 @@
 import os
-import random
-import torch
 import torchaudio
+import torch
 from torch.utils.data import Dataset
+from torchaudio.transforms import Resample
 
 class AudioDataset(Dataset):
-    def __init__(self, data_dir, split="train", sample_rate=16000, duration=3, transform=None, shuffle=False):
-        self.data_dir = os.path.join(data_dir, split)
+    def __init__(self, root_dir, split="train", sample_rate=16000, normalize=True):
+        self.root_dir = os.path.join(root_dir, split)
         self.sample_rate = sample_rate
-        self.num_samples = sample_rate * duration
-        self.transform = transform
-
-        if not os.path.exists(self.data_dir):
-            raise FileNotFoundError(f"La cartella {self.data_dir} non esiste.")
-
-        self.classes = sorted(os.listdir(self.data_dir))
-        if not self.classes:
-            raise FileNotFoundError(f"Nessuna classe trovata nella cartella {self.data_dir}")
-
         self.audio_paths = []
         self.labels = []
+        self.label_to_idx = {}
+        self.max_length = 0
+        self.normalize = normalize
 
-        for label, class_name in enumerate(self.classes):
-            class_dir = os.path.join(self.data_dir, class_name, 'audio')
-            if os.path.isdir(class_dir):
-                for filename in os.listdir(class_dir):
-                    if filename.lower().endswith('.wav'):
-                        path = os.path.join(class_dir, filename)
-                        self.audio_paths.append(path)
-                        self.labels.append(label)
+        self._prepare_dataset()
 
-        if shuffle:
-            combined = list(zip(self.audio_paths, self.labels))
-            random.shuffle(combined)
-            self.audio_paths[:], self.labels[:] = zip(*combined)
+    def _prepare_dataset(self):
+        label_set = set()
+        lengths = []
+
+        for label in os.listdir(self.root_dir):
+            label_path = os.path.join(self.root_dir, label, "audio")
+            if not os.path.isdir(label_path):
+                continue
+            for filename in os.listdir(label_path):
+                if filename.endswith(".wav"):
+                    full_path = os.path.join(label_path, filename)
+                    self.audio_paths.append(full_path)
+                    self.labels.append(label)
+                    label_set.add(label)
+
+                    info = torchaudio.info(full_path)
+                    lengths.append(info.num_frames)
+
+        self.label_to_idx = {label: idx for idx, label in enumerate(sorted(label_set))}
+        self.max_length = max(lengths)
 
     def __len__(self):
         return len(self.audio_paths)
 
     def __getitem__(self, idx):
-        audio_path = self.audio_paths[idx]
-        label = self.labels[idx]
+        path = self.audio_paths[idx]
+        label_str = self.labels[idx]
+        label = self.label_to_idx[label_str]
 
-        waveform, sr = torchaudio.load(audio_path)
-        waveform = waveform.mean(dim=0)
+        waveform, sr = torchaudio.load(path)
 
-        # Resample se necessario
+        # Convertire in mono
+        if waveform.shape[0] > 1:
+            waveform = torch.mean(waveform, dim=0, keepdim=True)
+
+        # Resampling
         if sr != self.sample_rate:
-            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=self.sample_rate)
+            resampler = Resample(orig_freq=sr, new_freq=self.sample_rate)
             waveform = resampler(waveform)
 
-        # Pad o truncate
-        if waveform.size(0) < self.num_samples:
-            padding = self.num_samples - waveform.size(0)
-            waveform = torch.nn.functional.pad(waveform, (0, padding))
-        else:
-            waveform = waveform[:self.num_samples]
+        # Normalizzazione
+        if self.normalize:
+            waveform = (waveform - waveform.mean()) / (waveform.std() + 1e-9)
 
-        if self.transform:
-            waveform = self.transform(waveform)
+        return waveform, label
 
-        return waveform.unsqueeze(0), label 
+    def get_label_mapping(self):
+        return self.label_to_idx
+
+    def get_max_length(self):
+        return self.max_length
+
+def collate_fn(batch):
+    waveforms, labels = zip(*batch)
+    max_len = max(waveform.shape[1] for waveform in waveforms)
+    padded_waveforms = []
+    
+    for waveform in waveforms:
+        pad_len = max_len - waveform.shape[1]
+        if pad_len > 0:
+            waveform = torch.nn.functional.pad(waveform, (0, pad_len))
+        padded_waveforms.append(waveform)
+
+    return torch.stack(padded_waveforms), torch.tensor(labels)

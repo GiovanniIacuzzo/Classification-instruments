@@ -1,28 +1,23 @@
 import torch
-from utils.dataset_audio import Dataset
-from models.model_audio import RNN
-from torch.utils.data import DataLoader
-from sklearn.metrics import classification_report
 
-def evaluate_model(test_dir):
-    dataset = Dataset(test_dir)
-    loader = DataLoader(dataset, batch_size=1)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = RNN(num_classes=len(dataset.label_map)).to(device)
-    model.load_state_dict(torch.load("model.pth"))
+def evaluate(model, loader, criterion, device):
     model.eval()
-
-    all_preds = []
-    all_labels = []
+    total_loss = 0.0
+    correct = 0
+    total = 0
 
     with torch.no_grad():
-        for x, y in loader:
-            x = x.to(device).squeeze(1).transpose(1, 2)
-            y = y.to(device)
-            outputs = model(x)
-            _, preds = torch.max(outputs, 1)
-            all_preds.extend(preds.cpu().numpy())
-            all_labels.extend(y.cpu().numpy())
+        for inputs, labels in loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
 
-    print(classification_report(all_labels, all_preds))
+            loss = criterion(outputs, labels)
+            total_loss += loss.item()
+
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    avg_loss = total_loss / len(loader)
+    accuracy = correct / total
+    return avg_loss, accuracy
