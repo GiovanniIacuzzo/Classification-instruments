@@ -1,6 +1,8 @@
 import torchaudio
 import torch
 import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 def predict_single_file(model, filepath, label_mapping, device=None, sample_rate=16000, model_path="best_model.pth"):
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
@@ -72,3 +74,13 @@ def plot_metrics(train_loss, val_loss, train_acc, val_acc, save_dir="plots"):
     plt.savefig(os.path.join(save_dir, "training_metrics.png"))
     plt.show()
 
+def plot_confusion_matrix(y_true, y_pred, class_names, save_path="plots/confusion_matrix.png"):
+    cm = confusion_matrix(y_true, y_pred)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names)
+
+    plt.figure(figsize=(10, 8))
+    disp.plot(cmap='Blues', xticks_rotation=45)
+    plt.title("Confusion Matrix")
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.show()

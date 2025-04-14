@@ -17,6 +17,8 @@ def train_model(model, train_loader, val_loader, num_epochs=20, lr=1e-3, device=
     all_val_loss = []
     all_train_acc = []
     all_val_acc = []
+    patience = 5
+    epochs_no_improve = 0
 
     for epoch in range(num_epochs):
         print(f"\nEpoch {epoch + 1}/{num_epochs}")
@@ -56,6 +58,15 @@ def train_model(model, train_loader, val_loader, num_epochs=20, lr=1e-3, device=
             best_val_acc = val_acc
             torch.save(model.state_dict(), save_path)
             print("Modello salvato (nuovo best)")
+            epochs_no_improve = 0
+        else:
+            epochs_no_improve += 1
+            print(f"Nessun miglioramento da {epochs_no_improve} epoche.")
+
+        if epochs_no_improve >= patience:
+            print(f"Early stopping attivato dopo {epoch + 1} epoche.")
+            break
+
 
         scheduler.step()
 

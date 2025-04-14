@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 class RNN(nn.Module):
     def __init__(self, input_size=1, hidden_size=128, num_layers=3, num_classes=5, dropout=0.3, bidirectional=False):
@@ -17,11 +18,11 @@ class RNN(nn.Module):
             dropout=dropout if num_layers > 1 else 0.0,
             bidirectional=bidirectional
         )
-
+        self.bn = nn.BatchNorm1d(hidden_size * self.num_directions)
         self.fc = nn.Linear(hidden_size * self.num_directions, num_classes)
 
     def forward(self, x):
         out, _ = self.lstm(x)
-        out = out[:, -1, :]
+        out = torch.mean(out, dim=1)
         out = self.fc(out)
         return out
