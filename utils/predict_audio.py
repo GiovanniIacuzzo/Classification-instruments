@@ -1,5 +1,6 @@
 import torchaudio
 import torch
+import matplotlib.pyplot as plt
 
 def predict_single_file(model, filepath, label_mapping, device=None, sample_rate=16000, model_path="best_model.pth"):
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
@@ -38,3 +39,36 @@ def log_results(log_path, **kwargs):
         for key, value in kwargs.items():
             f.write(f"{key}: {value}\n")
         f.write("-" * 40 + "\n")
+
+def plot_metrics(train_loss, val_loss, train_acc, val_acc, save_dir="plots"):
+    import os
+    os.makedirs(save_dir, exist_ok=True)
+
+    epochs = range(1, len(train_loss) + 1)
+
+    plt.figure(figsize=(12, 5))
+
+    # Loss
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, train_loss, label="Train Loss")
+    plt.plot(epochs, val_loss, label="Val Loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.title("Loss durante l'allenamento")
+    plt.legend()
+    plt.grid(True)
+
+    # Accuracy
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, train_acc, label="Train Accuracy")
+    plt.plot(epochs, val_acc, label="Val Accuracy")
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.title("Accuratezza durante l'allenamento")
+    plt.legend()
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_dir, "training_metrics.png"))
+    plt.show()
+

@@ -13,6 +13,10 @@ def train_model(model, train_loader, val_loader, num_epochs=20, lr=1e-3, device=
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
 
     best_val_acc = 0.0
+    all_train_loss = []
+    all_val_loss = []
+    all_train_acc = []
+    all_val_acc = []
 
     for epoch in range(num_epochs):
         print(f"\nEpoch {epoch + 1}/{num_epochs}")
@@ -41,6 +45,11 @@ def train_model(model, train_loader, val_loader, num_epochs=20, lr=1e-3, device=
 
         val_loss, val_acc = evaluate(model, val_loader, criterion, device)
 
+        all_train_loss.append(train_loss)
+        all_val_loss.append(val_loss)
+        all_train_acc.append(train_acc)
+        all_val_acc.append(val_acc)
+
         print(f"Train Loss: {train_loss:.4f}, Acc: {train_acc:.4f} | Val Loss: {val_loss:.4f}, Acc: {val_acc:.4f}")
 
         if val_acc > best_val_acc:
@@ -50,4 +59,5 @@ def train_model(model, train_loader, val_loader, num_epochs=20, lr=1e-3, device=
 
         scheduler.step()
 
-    print(f"\nFine training. Miglior acc. validazione: {best_val_acc:.4f}")
+        print(f"\nFine training. Miglior acc. validazione: {best_val_acc:.4f}")
+    return all_train_loss, all_val_loss, all_train_acc, all_val_acc
