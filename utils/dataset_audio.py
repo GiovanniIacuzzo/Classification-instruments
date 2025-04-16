@@ -46,9 +46,8 @@ class AudioDataset(Dataset):
 
         waveform, sr = torchaudio.load(raw_path)
 
-        # Converti in mono se necessario
         if waveform.shape[0] > 1:
-            print(f"🔄 Convertito in mono: {raw_path}")
+            print(f"Convertito in mono: {raw_path}")
             waveform = torch.mean(waveform, dim=0, keepdim=True)
 
         # Resample
@@ -60,7 +59,6 @@ class AudioDataset(Dataset):
         if self.normalize:
             waveform = (waveform - waveform.mean()) / (waveform.std() + 1e-9)
 
-        # Trim o pad a lunghezza fissa
         if waveform.shape[1] < FIXED_LENGTH:
             pad_len = FIXED_LENGTH - waveform.shape[1]
             waveform = torch.nn.functional.pad(waveform, (0, pad_len))
@@ -70,7 +68,6 @@ class AudioDataset(Dataset):
         # Downsampling
         waveform = waveform[:, ::DOWNSAMPLE_FACTOR]
 
-        # Augmenta solo nel training
         if self.train:
             waveform = add_noise(waveform)
 
