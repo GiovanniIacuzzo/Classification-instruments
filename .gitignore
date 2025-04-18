@@ -5,3 +5,6 @@ chitarra/
 pianoforte/
 flauto/
 data.zip
+test/
+train/
+val/
