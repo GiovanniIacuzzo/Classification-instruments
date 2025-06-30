@@ -2,6 +2,8 @@
 
 Questo progetto si occupa della classificazione automatica di strumenti musicali a partire da dati audio trasformati in immagini (spettrogrammi). Il problema è affrontato come una **classificazione multilabel**, confrontando le prestazioni di una **CNN (modello di deep learning)** con modelli tradizionali di machine learning: **XGBoost** e **Random Forest**.
 
+---
+
 ## 📁 Struttura del Dataset
 
 Il dataset è stato **raccolto manualmente** e comprende **registrazioni audio di 5 strumenti musicali**:
@@ -19,6 +21,8 @@ Ogni spettrogramma è poi salvato come immagine `.png` e suddiviso in:
 - `train` (70%)
 - `val` (15%)
 - `test` (15%)
+
+---
 
 Organizzati nella seguente struttura:
 
@@ -57,6 +61,8 @@ data/
 └── Readme.md
 ```
 
+---
+
 ## 🔧 Preprocessing: Da Audio a Spettrogrammi
 
 Il preprocessing converte i file `.wav` in spettrogrammi tramite:
@@ -66,6 +72,8 @@ librosa.feature.melspectrogram()
 librosa.power_to_db()
 ```
 I file risultanti vengono salvati come immagini monocromatiche.
+
+---
 
 ## 🧠 Modelli Utilizzati
 
@@ -117,6 +125,7 @@ Abbiamo infine testato un classificatore Random Forest, anch’esso basato su fe
 | **XGBoost**     | Feature estratte         | Machine Learning | Ottima performance su feature numeriche      | Media                        |
 | **Random Forest** | Feature estratte       | Machine Learning | Semplice e interpretabile                    | Più bassa                    |
 
+---
 
 ## 🛠 Requisiti
 ```bash
@@ -132,7 +141,18 @@ Puoi installarli con:
 ```bash
 pip install -r requirements.txt
 ```
+Oppure puoi configurare un ambiente conda con:
+```bash
+conda env create -f environment.yml
+conda activate classification_instruments
+```
 
 ## 📎 Licenza
 da inserire
 
+---
+
+### 📩 Contatti
+Per domande contattare:
+[giovanni.iacuzzo@unikorestudent.it](mailto:giovanni.iacuzzo@unikorestudent.it)
+[chiara.milazzo@unikorestudent.it](mailto:chiara.milazzo@unikorestudent.it)

@@ -1,4 +1,4 @@
-name: cnn-rnn-training
+name: classification_instruments
 channels:
   - defaults
   - conda-forge
