@@ -121,7 +121,7 @@ Abbiamo infine testato un classificatore Random Forest, anch’esso basato su fe
 
 | Modello         | Feature Input            | Approccio        | Vantaggio Principale                         | Accuracy                     |
 |-----------------|--------------------------|------------------|----------------------------------------------|------------------------------|
-| **CNN**         | Immagini (spettrogrammi) | Deep Learning    | Apprendimento automatico dalle immagini      | 🔝 Alta (da valutazione finale) |
+| **CNN**         | Immagini (spettrogrammi) | Deep Learning    | Apprendimento automatico dalle immagini      | Alta (da valutazione finale) |
 | **XGBoost**     | Feature estratte         | Machine Learning | Ottima performance su feature numeriche      | Media                        |
 | **Random Forest** | Feature estratte       | Machine Learning | Semplice e interpretabile                    | Più bassa                    |
 
@@ -155,6 +155,6 @@ da inserire
 ### 📩 Contatti
 Per qualsiasi domanda o richiesta di chiarimento, non esitare a contattarci:
 
-- 📧 [Giovanni Iacuzzo](mailto:giovanni.iacuzzo@unikorestudent.it)  
-- 📧 [Chiara Milazzo](mailto:chiara.milazzo@unikorestudent.it)
+- 📧 [Giovanni Giuseppe Iacuzzo](mailto:giovanni.iacuzzo@unikorestudent.it)  
+- 📧 [Chiara Maria Milazzo](mailto:chiara.milazzo@unikorestudent.it)
 
