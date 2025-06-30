@@ -153,6 +153,8 @@ da inserire
 ---
 
 ### 📩 Contatti
-Per domande contattare:
-[giovanni.iacuzzo@unikorestudent.it](mailto:giovanni.iacuzzo@unikorestudent.it)
-[chiara.milazzo@unikorestudent.it](mailto:chiara.milazzo@unikorestudent.it)
+Per qualsiasi domanda o richiesta di chiarimento, non esitare a contattarci:
+
+- 📧 [Giovanni Iacuzzo](mailto:giovanni.iacuzzo@unikorestudent.it)  
+- 📧 [Chiara Milazzo](mailto:chiara.milazzo@unikorestudent.it)
+
