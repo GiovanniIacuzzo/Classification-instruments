@@ -148,7 +148,11 @@ conda activate classification_instruments
 ```
 
 ## 📎 Licenza
-da inserire
+
+Questo progetto è distribuito con licenza [Apache License 2.0](LICENSE).  
+Puoi utilizzarlo liberamente, a patto di citare gli autori originali.  
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ---
 
