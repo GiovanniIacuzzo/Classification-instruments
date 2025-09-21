@@ -1,5 +1,10 @@
 # 🎵 Classification of Musical Instruments
 
+<p align="center">
+  This is the **Italian version by default**. Switch to:  
+  <a href="Readme_En.md">🇬🇧 English</a>
+</p>
+
 Questo progetto si occupa della classificazione automatica di strumenti musicali a partire da dati audio trasformati in immagini (spettrogrammi). Il problema è affrontato come una **classificazione multilabel**, confrontando le prestazioni di una **CNN (modello di deep learning)** con modelli tradizionali di machine learning: **XGBoost** e **Random Forest**.
 
 ---
