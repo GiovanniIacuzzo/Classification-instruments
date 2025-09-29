@@ -124,11 +124,89 @@ Abbiamo infine testato un classificatore Random Forest, anch’esso basato su fe
 
 ## 🔍 Confronto
 
-| Modello         | Feature Input            | Approccio        | Vantaggio Principale                         | Accuracy                     |
-|-----------------|--------------------------|------------------|----------------------------------------------|------------------------------|
-| **CNN**         | Immagini (spettrogrammi) | Deep Learning    | Apprendimento automatico dalle immagini      | Alta (da valutazione finale) |
-| **XGBoost**     | Feature estratte         | Machine Learning | Ottima performance su feature numeriche      | Media                        |
-| **Random Forest** | Feature estratte       | Machine Learning | Semplice e interpretabile                    | Più bassa                    |
+<p align="center">
+  <b>Tabella comparativa delle prestazioni dei modelli</b>
+</p>
+
+<p align="center">
+  
+<table>
+  <thead>
+    <tr>
+      <th>Modello</th>
+      <th>Dataset</th>
+      <th>Accuracy</th>
+      <th>Precision (macro)</th>
+      <th>Recall (macro)</th>
+      <th>F1-score (macro)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><b>CNN (immagini)</b></td>
+      <td>Val</td>
+      <td>86.71%</td>
+      <td>0.9050</td>
+      <td>0.8777</td>
+      <td>0.8696</td>
+    </tr>
+    <tr>
+      <td>Test</td>
+      <td><b>98.33%</b></td>
+      <td>0.9830</td>
+      <td>0.9852</td>
+      <td>0.9840</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><b>Random Forest (ViT – immagini)</b></td>
+      <td>Val</td>
+      <td>71.68%</td>
+      <td>–</td>
+      <td>–</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>Test</td>
+      <td>82.22%</td>
+      <td>0.83</td>
+      <td>0.84</td>
+      <td>0.82</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><b>XGBoost (ViT – immagini)</b></td>
+      <td>Val</td>
+      <td>77.46%</td>
+      <td>–</td>
+      <td>–</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>Test</td>
+      <td>82.78%</td>
+      <td>0.83</td>
+      <td>0.84</td>
+      <td>0.83</td>
+    </tr>
+    <tr>
+      <td><b>Random Forest (ViT – audio)</b></td>
+      <td>Test</td>
+      <td>92%</td>
+      <td>0.96</td>
+      <td>0.93</td>
+      <td>0.94</td>
+    </tr>
+    <tr>
+      <td><b>XGBoost (ViT – audio)</b></td>
+      <td>Test</td>
+      <td>67%</td>
+      <td>0.57</td>
+      <td>0.57</td>
+      <td>0.52</td>
+    </tr>
+  </tbody>
+</table>
+
+</p>
 
 ---
 
