@@ -10,3 +10,9 @@ train/
 val/
 img/
 dati/
+ViTAudio/
+ViTImage/
+dataset_diviso/
+CNN/
+test2/
+tutte_le_tracce/

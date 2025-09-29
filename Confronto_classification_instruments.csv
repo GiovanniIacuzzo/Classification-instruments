@@ -1,0 +1,10 @@
+Confronto tra modelli nella classificazione degli strumenti
+Modello;Dataset;Accuracy;Precision (macro);Recall (macro);F1-score (macro)
+CNN;Val;86.71%;0.9050;0.8777;0.8696
+CNN;Test;98.33%;0.9830;0.9852;0.9840
+RF (ViT – immagini);Val;71.68%;–;–;–
+RF (ViT – immagini);Test;82.22%;0.83;0.84;0.82
+XGB (ViT – immagini);Val;77.46%;–;–;–
+XGB (ViT – immagini);Test;82.78%;0.83;0.84;0.83
+RF (ViT – audio);Test;92%;0.96;0.93;0.94
+XGB (ViT – audio);Test;67%;0.57;0.57;0.52

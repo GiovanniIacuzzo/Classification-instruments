@@ -165,3 +165,48 @@ plt.legend()
 plt.tight_layout()
 plt.savefig("models_accuracy_comparison_gridsearch.png")
 plt.show()
+
+
+"""
+(base) giovanni02@MacBook-Air-del-Professore Classification-instruments % /usr/local/bin/python3 /Users/giovanni02/Desktop/Progetti/Classifi
+cation-instruments/VIT_Model_Music.py
+Some weights of ViTModel were not initialized from the model checkpoint at google/vit-base-patch16-224 and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Some weights of ViTModel were not initialized from the model checkpoint at google/vit-base-patch16-224 and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Some weights of ViTModel were not initialized from the model checkpoint at google/vit-base-patch16-224 and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+Random Forest - Best params: {'max_depth': None, 'min_samples_split': 2, 'n_estimators': 300}
+Random Forest Validation Accuracy: 0.7168
+Random Forest Test Accuracy: 0.8222
+              precision    recall  f1-score   support
+
+    chitarra       0.79      0.90      0.84        30
+      flauto       0.89      0.91      0.90        43
+  pianoforte       0.93      1.00      0.97        28
+       viola       0.72      0.85      0.78        39
+     violino       0.81      0.53      0.64        40
+
+    accuracy                           0.82       180
+   macro avg       0.83      0.84      0.82       180
+weighted avg       0.82      0.82      0.81       180
+
+
+XGBoost - Best params: {'learning_rate': 0.1, 'max_depth': 3, 'n_estimators': 300, 'subsample': 1.0}
+XGBoost Validation Accuracy: 0.7746
+XGBoost Test Accuracy: 0.8278
+              precision    recall  f1-score   support
+
+    chitarra       0.84      0.90      0.87        30
+      flauto       0.91      0.93      0.92        43
+  pianoforte       0.90      1.00      0.95        28
+       viola       0.71      0.82      0.76        39
+     violino       0.79      0.55      0.65        40
+
+    accuracy                           0.83       180
+   macro avg       0.83      0.84      0.83       180
+weighted avg       0.83      0.83      0.82       180
+
+(base) giovanni02@MacBook-Air-del-Professore Classification-instruments % 
+"""
